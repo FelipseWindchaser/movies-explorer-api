@@ -11,10 +11,10 @@ const appRoutes = require('./routes/appRoutes');
 const allowedCors = [
   'http://localhost:3000',
   'https://localhost:3000',
-  'http://felipse.nomorepartiesxyz.ru',
-  'https://felipse.nomorepartiesxyz.ru',
-  'http://api.felipse.nomorepartiesxyz.ru',
-  'https://api.felipse.nomorepartiesxyz.ru',
+  'http://felipsewindchaser.nomoredomains.sbs',
+  'https://felipsewindchaser.nomoredomains.sbs',
+  'http://api.felipsewindchaser.nomoredomains.sbs',
+  'https://api.felipsewindchaser.nomoredomains.sbs',
 ];
 const { PORT = 3000 } = process.env;
 const app = express();
