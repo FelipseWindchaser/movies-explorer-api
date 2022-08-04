@@ -46,6 +46,14 @@ module.exports.getCurrentUser = (req, res, next) => {
 module.exports.refreshProfile = (req, res, next) => {
   const { _id } = req.user;
   const { email, name } = req.body;
+
+  User.findOne({ email })
+    .then((owner) => {
+      if (owner._id.toString() !== _id) {
+        throw new ErrorHandler(conflictEmail);
+      }
+    })
+    .catch(next);
   User.findByIdAndUpdate(
     _id,
     { email, name },

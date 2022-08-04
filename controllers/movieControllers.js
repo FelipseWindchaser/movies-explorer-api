@@ -5,7 +5,8 @@ const ErrorHandler = require('../errors/errorHandler');
 const Movie = require('../models/movie');
 
 module.exports.getMovies = (req, res, next) => {
-  Movie.find({})
+  const { _id } = req.user;
+  Movie.find({ owner: _id })
     .populate('owner')
     .then((movie) => res.send(movie.reverse()))
     .catch(next);
@@ -26,37 +27,46 @@ module.exports.createMovie = (req, res, next) => {
     thumbnail,
     movieId,
   } = req.body;
-  Movie.create({
-    country,
-    director,
-    duration,
-    year,
-    description,
-    image,
-    trailerLink,
-    nameRU,
-    nameEN,
-    thumbnail,
-    movieId,
-    owner: _id,
-  })
-    .then((item) => {
-      Movie.findById(item._id)
-        .populate('owner')
-        .then((movie) => res.send(movie))
-        .catch(next);
+
+  Movie.find({ owner: _id })
+    .populate('owner')
+    .then((movie) => {
+      if (movie.some((item) => item.movieId.toString() === movieId)) {
+        throw new ErrorHandler(conflictMovieId);
+      }
+      Movie.create({
+        country,
+        director,
+        duration,
+        year,
+        description,
+        image,
+        trailerLink,
+        nameRU,
+        nameEN,
+        thumbnail,
+        movieId,
+        owner: _id,
+      })
+        .then((item) => {
+          Movie.findById(item._id)
+            .populate('owner')
+            .then((createdMovie) => res.send(createdMovie))
+            .catch(next);
+        })
+        .catch((err) => {
+          if (err.name === 'ValidationError') {
+            const error = new ErrorHandler(badRequest);
+            return next(error);
+          }
+          if (err.code === 11000) {
+            const error = new ErrorHandler(conflictMovieId);
+            return next(error);
+          }
+          return next(err);
+        });
     })
-    .catch((err) => {
-      if (err.name === 'ValidationError') {
-        const error = new ErrorHandler(badRequest);
-        return next(error);
-      }
-      if (err.code === 11000) {
-        const error = new ErrorHandler(conflictMovieId);
-        return next(error);
-      }
-      return next(err);
-    });
+    .catch(next);
 };
 
 module.exports.deleteMovieById = (req, res, next) => {

@@ -26,7 +26,7 @@ router.post(
   }),
   createUser,
 );
-router.get('/signout', logout);
+router.get('/signout', auth, logout);
 router.use('/users', auth, require('./userRoutes'));
 router.use('/movies', auth, require('./movieRoutes'));
 
