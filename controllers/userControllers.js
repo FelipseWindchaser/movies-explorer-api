@@ -1,6 +1,6 @@
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
-const { userNotFound, conflictEmail, badRequest } = require('../errors/errorContent');
+const { userNotFound, conflictEmail, badRequest } = require('../utils/constants/errorContent');
 const ErrorHandler = require('../errors/errorHandler');
 const User = require('../models/user');
 
@@ -47,34 +47,37 @@ module.exports.refreshProfile = (req, res, next) => {
   const { _id } = req.user;
   const { email, name } = req.body;
 
-  User.findOne({ email })
-    .then((owner) => {
-      if (owner._id.toString() !== _id) {
-        throw new ErrorHandler(conflictEmail);
+  User.find({})
+    .then((users) => {
+      const dupe = (users.find((element) => element.email === email));
+      if (dupe) {
+        if (dupe._id.toString() !== _id) {
+          throw new ErrorHandler(conflictEmail);
+        }
       }
+      User.findByIdAndUpdate(
+        _id,
+        { email, name },
+        {
+          new: true,
+          runValidators: true,
+        },
+      )
+        .then((user) => {
+          if (!user) {
+            throw new ErrorHandler(userNotFound);
+          }
+          return res.send(user);
+        })
+        .catch((err) => {
+          if (err.name === 'ValidationError') {
+            const error = new ErrorHandler(badRequest);
+            return next(error);
+          }
+          return next(err);
+        });
     })
     .catch(next);
-  User.findByIdAndUpdate(
-    _id,
-    { email, name },
-    {
-      new: true,
-      runValidators: true,
-    },
-  )
-    .then((user) => {
-      if (!user) {
-        throw new ErrorHandler(userNotFound);
-      }
-      res.send(user);
-    })
-    .catch((err) => {
-      if (err.name === 'ValidationError') {
-        const error = new ErrorHandler(badRequest);
-        return next(error);
-      }
-      return next(err);
-    });
 };
 
 module.exports.login = (req, res, next) => {

@@ -5,8 +5,7 @@ const {
   createMovie,
   deleteMovieById,
 } = require('../controllers/movieControllers');
-
-const regexUrl = /^(https?:\/\/)?([\w-]{1,32}\.[\w-]{1,32})[^\s@]*/;
+const { regexUrl } = require('../utils/constants/constants');
 
 router.get('/', getMovies);
 router.post(
@@ -23,7 +22,7 @@ router.post(
       thumbnail: Joi.string().required().regex(regexUrl),
       nameRU: Joi.string().required(),
       nameEN: Joi.string().required(),
-      movieId: Joi.string().required(),
+      movieId: Joi.number().required(),
     }),
   }),
   createMovie,
@@ -32,7 +31,7 @@ router.delete(
   '/:movieId',
   celebrate({
     params: Joi.object().keys({
-      movieId: Joi.string().required(),
+      movieId: Joi.string().required().hex().length(24),
     }),
   }),
   deleteMovieById,

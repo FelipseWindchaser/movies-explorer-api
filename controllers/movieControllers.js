@@ -1,6 +1,6 @@
 const {
   badRequest, forbidden, movieNotFound, conflictMovieId,
-} = require('../errors/errorContent');
+} = require('../utils/constants/errorContent');
 const ErrorHandler = require('../errors/errorHandler');
 const Movie = require('../models/movie');
 

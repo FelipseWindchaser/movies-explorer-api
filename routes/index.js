@@ -3,7 +3,7 @@ const { celebrate, Joi } = require('celebrate');
 const auth = require('../middlewares/auth');
 const { login, createUser, logout } = require('../controllers/userControllers');
 const ErrorHandler = require('../errors/errorHandler');
-const { pageNotFound } = require('../errors/errorContent');
+const { pageNotFound } = require('../utils/constants/errorContent');
 
 router.post(
   '/signin',
