@@ -31,7 +31,7 @@ module.exports.createMovie = (req, res, next) => {
   Movie.find({ owner: _id })
     .populate('owner')
     .then((movie) => {
-      if (movie.some((item) => item.movieId.toString() === movieId)) {
+      if (movie.some((item) => item.movieId === movieId)) {
         throw new ErrorHandler(conflictMovieId);
       }
       Movie.create({
