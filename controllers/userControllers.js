@@ -16,7 +16,19 @@ module.exports.createUser = (req, res, next) => {
     name,
   })
     .then((user) => {
-      User.findById(user._id).then((data) => res.send(data));
+      User.findById(user._id).then((data) => {
+        const token = jwt.sign(
+          { _id: user._id },
+          NODE_ENV === 'production' ? JWT_SECRET : 'top-secret',
+          { expiresIn: '7d' },
+        );
+        res
+          .cookie('jwt', token, {
+            maxAge: 86400 * 1000 * 7,
+            httpOnly: true,
+          })
+          .send(data);
+      });
     })
     .catch((err) => {
       if (err.code === 11000) {
